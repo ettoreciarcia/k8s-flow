@@ -9,10 +9,10 @@ A demo repository to play with Kubernetes and indent some more yaml
 
 ### 2. **CI/CD**
 - [x] Build and deploy image locally :boom:
-- [ ] Create a pipeline to build image :boom:
-- [ ] Add security scan to image :boom:
-- [ ] Optimize image size and security :boom:
-- [ ] Push image on a container registry :boom:
+- [x] Create a pipeline to build image :boom:
+- [x] Add security scan to image :boom:
+- [x] Optimize image size and security :boom:
+- [x] Push image on a container registry :boom:
 
 ### 3. **Deploy**
 - [ ] Write Kubernetes manifest to deploy Deployment :star:
@@ -74,10 +74,44 @@ The image is unnecessarily large and the Nginx version too old, it will surely b
 
 We'll use GitHub Actions to get straight to the point.
 
-For each push that modifies the files in samples/app1 or samples/app2 we will create a new image, we will do a security check on the built images to make sure they are not vulnerable and if they are not we will push them to Docker Hub.
+For each push that modifies the files in samples/app1 or samples/app2 we will create a new image
+
+I won't go into the details of how I connected the GitHub Actions to my Docker Hub account, for more info you can read my [article](https://ettoreciarcia.com/posts/01-iac-and-pipeline-my-personal-website/#32-authenticate-github-actions-against-aws). Did I mention I wrote an article? :)
 
 
-I won't go into the details of how I connected the GitHub Actions to my Docker Hub account, for more info you can read my [article](https://ettoreciarcia.com/posts/01-iac-and-pipeline-my-personal-website/#32-authenticate-github-actions-against-aws)
+### 2.3 Add security scan image step in pipeline
 
-Did I mention I wrote an article? :)
+For this purpose we will use a plugin present in the GitHub Marketplace
 
+```yaml
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t docker.io/hecha00/app1:${{ github.sha }} samples/app1
+      - name: Scan Docker Image
+        uses: aquasecurity/trivy-action@0.8.0
+        with:
+          image-ref: 'docker.io/hecha00/app1:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+```
+
+We have configured our pipeline in such a way that there is an exit code of 1 in case the vulnerabilities found are HIGH or CRITICAL.
+
+Let's go for a run!
+
+As we suspected, our pipeline failed because the images from which the Dockerfiles start are old and vulnerable
+
+![security-check](img/security-check.png)
+
+Image scanning in our pipeline found 37 vulnerabilitiesof **(HIGH: 25, CRITICAL: 12)**
+In reality there are many other vulnerabilities but less impactful from a security point of view.
+
+### 2.4 Optimize image size and security
+
+These images aren't just devilish, they're way too big! 134MB per un container con un semplice nginx?
+
+Let's try using a newer and lighter nginx image, **nginx:1.23.2-alpine**. 
+(It Weighs only 9.28MB!)
