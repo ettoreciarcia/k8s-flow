@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - samples/app2/**
   pull_request:
 jobs:
   build:

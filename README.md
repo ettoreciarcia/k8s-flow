@@ -10,7 +10,7 @@ A demo repository to play with Kubernetes and indent some more yaml
 ### 2. **CI/CD**
 - [x] Build and deploy image locally :boom:
 - [x] Create a pipeline to build image :boom:
-- [x] Add security scan to image :boom:
+- [x] Add security scan to image in pipeline :boom:
 - [x] Optimize image size and security :boom:
 - [x] Push image on a container registry :boom:
 
@@ -111,7 +111,33 @@ In reality there are many other vulnerabilities but less impactful from a securi
 
 ### 2.4 Optimize image size and security
 
-These images aren't just devilish, they're way too big! 134MB per un container con un semplice nginx?
+These images aren't just devilish, they're way too big! 134MB for a container with plain nginx?
 
 Let's try using a newer and lighter nginx image, **1-alpine-slim**. 
 (It Weighs only 4.77MB!)
+
+
+But why should we do it? 
+In the end, one image is as good as another, as long as it works! No?
+The size of the Docker images, in certain scenarios, avalanches on all components and in the long run the price you pay is high.
+Here are some consequences of having unnecessarily heavy container images
+- They take longer to build, this translates into pipelines that take longer to finish and therefore a worse **developer experience**
+- Image repositories have costs related to the space we occupy. Larger images -> **Higher storage costs**
+- They take longer to launch, in a highly scalable ecosystem where pods are destroyed and created all the time, **this makes the Kubernetes cluster less responsive**
+- They take up more memory space once they are running, **this reducing cluster resources that we could dedicate to something else**
+- The larger the image, the greater the attack surface for attackers. 
+This results in **security issues**
+
+### 2.5 Push image on a container registry
+
+Here we go, our pipeline built the Docker images and then pushed the images to our repository after verifying that they have no known vulnerabilities
+
+![pipeline](img/pipeline.png)
+
+In this case we have created multi-architecture images, they can run on both amd and arm architectures.
+
+We can take a look at our beautiful image on Docker Hub
+
+![docker-hub](img/docker-hub.png)
+
+Everything is ready, we can finally enjoy Kubernetes
