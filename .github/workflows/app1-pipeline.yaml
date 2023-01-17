@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   build:
-    name: Build
+    name: Build app1
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -14,11 +14,11 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t docker.io/hecha00/app2:${{ github.sha }} -f samples/app1
+          docker build -t docker.io/hecha00/app1:${{ github.sha }} samples/app1
       - name: Scan Docker Image
         uses: aquasecurity/trivy-action@0.8.0
         with:
-          image-ref: 'docker.io/hecha00/personal-website:${{ github.sha }}'
+          image-ref: 'docker.io/hecha00/app1:${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
