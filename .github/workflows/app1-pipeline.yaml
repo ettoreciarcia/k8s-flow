@@ -1,9 +1,9 @@
-name: build app1 
+name: build app1
 on:
   push:
     branches:
       - main
-      paths:
+    paths:
       - samples/app1/**
   pull_request:
 jobs:
