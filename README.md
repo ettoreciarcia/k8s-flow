@@ -29,3 +29,24 @@ A demo repository to play with Kubernetes and indent some more yaml
  5.1 Prometheus/Grafana/ELK? TBD :boom:
 ___
   
+## 1. Premise
+
+
+In a real scenario I would have created an architecture in the following way:
+
+**Infrastructure Provisioning** 
+(I assume I am working on a cloud provider)
+I would have used Terraform as an infrastructure as code tool and would have deployed the following resources:
+- 3 Tier Network (Public, Private and DB subnet) 
+- Kubernetes Cluster
+- Image Repository for every container image
+- Possible pipelines according to the cloud provider
+- Management users
+- Application Load Balancer to expose Kubernetes application (Nginx Ingress Controller
+- Possible DBs if the choice fell on DBs managed by the cloud provider
+
+
+Here you can see an example of how I manage terraform repositories -> [Pesonal Website Iac ](https://github.com/ettoreciarcia/personal-website-iac)  
+And here -> [an article](https://ettoreciarcia.com/posts/01-iac-and-pipeline-my-personal-website/) on how I manage pipelines for IaC and an example of how I manage Terraform state
+
+___
