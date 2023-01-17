@@ -113,5 +113,5 @@ In reality there are many other vulnerabilities but less impactful from a securi
 
 These images aren't just devilish, they're way too big! 134MB per un container con un semplice nginx?
 
-Let's try using a newer and lighter nginx image, **nginx:1.23.2-alpine**. 
-(It Weighs only 9.28MB!)
+Let's try using a newer and lighter nginx image, **1-alpine-slim**. 
+(It Weighs only 4.77MB!)
