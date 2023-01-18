@@ -22,7 +22,7 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Expose RaspberryPi in DMZ :boom:
 - [ ] Add HPA :boom:
 - [ ] Replace our manifest with Helm chart :star:
-- [ ] GitOps flow using ArgoCD :boom:
+- [x] GitOps flow using ArgoCD :boom:
 
 ### 4.**Scripting**
 - [ ] Create deploy-script :star:
@@ -45,8 +45,9 @@ I would have used Terraform as an infrastructure as code tool and would have dep
 - Image Repository for every container image
 - Possible pipelines according to the cloud provider
 - Management users
-- Application Load Balancer to expose Kubernetes application (Nginx Ingress Controller
+- Application Load Balancer to expose Kubernetes application (via Nginx Ingress Controller)
 - Possible DBs if the choice fell on DBs managed by the cloud provider
+
 
 
 Here you can see an example of how I manage terraform repositories -> [Pesonal Website Iac ](https://github.com/ettoreciarcia/personal-website-iac)
@@ -299,3 +300,21 @@ So, to retrieve my public you can run:
 And then copy this value in your ```/etc/hosts``` file
 
 ```[MY_PUBLIC_IP] app1-it.info```
+
+## GitOps Flow using ArgoCD
+
+Once you have installed the necessary manifests to dpeloy the argocd resources we can expose argo-server svc via port-forward
+
+```k port-forward svc/argocd-server 8080:443 -n argocd```
+
+Now we can access ArgoCD Web UI from localhost
+
+![argoCD](img/argo.png)
+
+To retrieve ArgoCD's first password:
+
+```kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo```
+
+After a bit, we create our application in argo and we linked it to our GitHub Repo!
+
+![argo-synch](img/argo-app.png)
