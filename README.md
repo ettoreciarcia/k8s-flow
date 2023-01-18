@@ -317,4 +317,25 @@ To retrieve ArgoCD's first password:
 
 After a bit, we create our application in argo and we linked it to our GitHub Repo!
 
-![argo-synch](img/argo-app.png)
+```yaml
+kind: Application
+metadata:
+  name: we-road
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: kubernetes/
+    repoURL: https://github.com/ettoreciarcia/k8s-flow
+    targetRevision: HEAD
+    directory:
+      recurse: true
+  destination:
+    namespace: '*'
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+```
+
+![argo-synch](img/argosynch.png)
