@@ -16,9 +16,11 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Push image on a container registry :boom:
 
 ### 3. **Deploy**
-- [ ] Write Kubernetes manifest to deploy Deployment :star:
-- [ ] Add networking layer to our manifest :star:
-- [ ] Expose applications using Nginx Ingress Controller :star:
+- [x] Write Kubernetes manifest to deploy Deployment :star:
+- [x] Add networking layer to our manifest :star:
+- [x] Expose applications using Nginx Ingress Controller :star:
+- [x] Expose RaspberryPi in DMZ
+- [ ] Add HPA
 - [ ] Replace our manifest with Helm chart :star:
 - [ ] GitOps flow using ArgoCD :boom:
 
@@ -178,3 +180,121 @@ We can take a look at our beautiful image on Docker Hub
 ![docker-hub](img/docker-hub.png)
 
 Everything is ready, we can finally enjoy Kubernetes
+
+### 3. **Deploy**
+
+### 3.1 Write Kubernetes manifest to deploy Deployment
+
+In a first step we distribute the images by hand to make sure everything is ok and that the right environment variables are passed, in a second step we proceed with elmizing the solution.
+
+For the deployment on Kubernetes let's generate the manifest of the 2 deployments:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: app1
+  labels:
+    app: app1
+  name: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - image: hecha00/app1:1.0
+        name: app1
+        env:
+        - name: APP_NAME
+          value: app1-production
+        - name: COUNTRY
+          value: us
+        resources: {}
+```
+
+### 3.2 Add networking layer to our manifest
+Then we expose the Pods internally to the cluster by creating a ClusterIP type Service:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1-svc
+  namespace: app1
+spec:
+  selector:
+    app: app1
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+```
+
+In the example I have reported only the info relating to the first application. We can follow the same steps also for the deployment of the second application
+
+From now on, our set of pods will be accessible within the cluster via the service, so we can ```curl``` on the service to the path of interest by building the host with the syntax ``` [SERVICE_NAME].[NAMESPACE]``` (Wouldn't serve the ```.[NAMESPACE]``` if you were in the same namespace)
+
+Example from one of the pods related to app1
+```curl app1-svc.app1/ping```
+
+### 3.3 Expose applications using Nginx Ingress Controller
+
+We expose the application using two Cluster IP services and place them behind an ingress controller, then we're going to edit our etc/hosts file to make sure everything went fine
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: we-road
+spec:
+  rules:
+    - host: app1-it.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app1-svc
+                port:
+                  number: 80
+    - host: app2-it.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app2-svc
+                port:
+                  number: 80
+```
+
+Now, after editing our ```/etc/hosts``` file with following line
+
+```[RASPBERRY_PI_IP] app1-it.info```
+
+we  can make a call to the host
+
+```curl app-it.info```
+
+![terminal](img/curl.png)
+
+### 3.4 Expose RaspberryPi in DMZ
+
+If you want to make calls to the services just exposed on the raspberry but from the public network you can search for the IP address of ```hecha.homepc.it``` (My DDNS)  and save it in your ```/etc/hosts``` file as we did in the previous step.
+
+So, to retrieve my public you can run:
+```dig hecha.homepc.it```
+
+And then copy this value in your ```/etc/hosts``` file
+
+```[MY_PUBLIC_IP] app1-it.info```

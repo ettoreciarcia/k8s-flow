@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: we-road
+  labels:
+    app: app1
+  name: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - image: hecha00/app1:1.0
+        name: app1
+        env:
+        - name: APP_NAME
+          value: app1-production
+        - name: COUNTRY
+          value: us
+        resources: {}
+status: {}
