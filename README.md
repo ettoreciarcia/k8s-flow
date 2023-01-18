@@ -19,8 +19,8 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Write Kubernetes manifest to deploy Deployment :star:
 - [x] Add networking layer to our manifest :star:
 - [x] Expose applications using Nginx Ingress Controller :star:
-- [x] Expose RaspberryPi in DMZ
-- [ ] Add HPA
+- [x] Expose RaspberryPi in DMZ :boom:
+- [ ] Add HPA :boom:
 - [ ] Replace our manifest with Helm chart :star:
 - [ ] GitOps flow using ArgoCD :boom:
 
@@ -61,7 +61,7 @@ In this phase I'm going to create a CI/CD pipeline that will build our Docker co
 
 If we want our code base to be clean and maintainable, we need to prevent badly formatted code from reaching it. We add a pre-commit hook to check yaml farmatting and other common errors.
 
-```
+```yaml
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
@@ -181,6 +181,7 @@ We can take a look at our beautiful image on Docker Hub
 
 Everything is ready, we can finally enjoy Kubernetes
 
+___
 ### 3. **Deploy**
 
 ### 3.1 Write Kubernetes manifest to deploy Deployment
