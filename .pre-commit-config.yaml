@@ -1,11 +1,23 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
-    hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/psf/black
-    rev: 22.10.0
-    hooks:
-    -   id: black
+-    repo: https://github.com/dnephin/pre-commit-golang
+     rev: master
+     hooks:
+        - id: go-fmt
+# -   repo: https://github.com/pre-commit/pre-commit-hooks
+#     sha: v3.4.0
+#     hooks:
+#     -   id: check-yaml
+#     -   id: end-of-file-fixer
+#     -   id: trailing-whitespace
+# -   repo: https://github.com/dnephin/pre-commit-golang
+#      rev: master
+#     hooks:
+#     -   id: go-fmt
+# -   repo: https://github.com/golangci/golangci-lint
+#     sha: v1.30.0
+#     hooks:
+#     -   id: golangci-lint
+# -   repo: https://github.com/helm/helm
+#     sha: v3.4.0
+#     hooks:
+#     -   id: helm-lint
