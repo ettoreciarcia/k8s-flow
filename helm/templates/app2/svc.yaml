@@ -1,0 +1,19 @@
+{{- if .Values.secondApp.create }}
+{{ $appName := .Values.secondApp.appName }}
+{{ $environment := .Values.secondApp.env }}
+{{- range $country := .Values.secondApp.countries }}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: we-road-{{ $country}}
+  name: {{ $appName}}-svc-{{ $country}}
+spec:
+  selector:
+    app: {{ $appName}}-{{ $country}}
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+{{- end }}
+{{- end }}

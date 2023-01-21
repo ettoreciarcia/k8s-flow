@@ -1,0 +1,7 @@
+{{- range $namespaces := .Values.secondApp.countries }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: we-road-{{ $namespaces }}
+---
+{{- end }}

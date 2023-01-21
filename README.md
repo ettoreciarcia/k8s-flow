@@ -21,15 +21,25 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Expose applications using Nginx Ingress Controller :star:
 - [x] Expose RaspberryPi in DMZ :boom:
 - [ ] Add HPA :boom:
-- [ ] Replace our manifest with Helm chart :star:
+- [x] Replace our manifest with Helm chart :star:
+- [ ] Add TLS/SSL Certificate to our application :boom:
 - [x] GitOps flow using ArgoCD :boom:
 
 ### 4.**Scripting**
-- [ ] Create deploy-script :star:
+- [x] Create deploy-script :star:
+- [ ] Add test suite  to script :boom:
+- [ ] GitHub Action to build and test go application :boom:
 - [ ] Write a golang application to export nginx logs at path /logs :star:
 
 ### 5. **Logging & Monitoring**
 - [ ] Prometheus/Grafana/ELK? TBD :boom:
+
+### 6. **Load test & Autoscaling Considerations**
+- [ ] Load test with Locust to show autoscaling of pods :boom:
+
+### 7. **External Access**
+- [x] Grant external access to private subnet with VPN
+- [ ] Create a read only user for Kubernetes
 ___
 
 ## 1. Premise
@@ -64,16 +74,31 @@ If we want our code base to be clean and maintainable, we need to prevent badly 
 
 ```yaml
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
-    hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/psf/black
-    rev: 22.10.0
-    hooks:
-    -   id: black
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-yaml
+    exclude: helm/templates/
+- repo: https://github.com/gruntwork-io/pre-commit
+  rev: v0.0.9
+  hooks:
+  - id: helmlint
+- repo: https://github.com/dnephin/pre-commit-golang
+  rev: master
+  hooks:
+    - id: go-fmt
+    - id: go-vet
+    - id: go-lint
+    - id: go-imports
+    - id: go-cyclo
+      args: [-over=15]
+    - id: validate-toml
+    - id: no-go-testing
+    - id: golangci-lint
+    - id: go-critic
+    - id: go-unit-tests
+    - id: go-build
+
 ```
 
 ### 2.1 Build and deploy image locally

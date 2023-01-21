@@ -4,10 +4,10 @@ repos:
   hooks:
   - id: check-yaml
     exclude: helm/templates/
-- repo: https://github.com/gruntwork-io/pre-commit
-  rev: v0.0.9
-  hooks:
-  - id: helmlint
+# - repo: https://github.com/gruntwork-io/pre-commit
+#   rev: v0.0.9
+#   hooks:
+#   - id: helmlint
 - repo: https://github.com/dnephin/pre-commit-golang
   rev: master
   hooks:

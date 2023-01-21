@@ -1,0 +1,24 @@
+{{- if .Values.firstApp.create }}
+{{ $appName := .Values.firstApp.appName }}
+{{ $environment := .Values.firstApp.env }}
+{{- range $country := .Values.firstApp.countries }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-{{ $country }}-{{ $appName }}
+  namespace: we-road-{{ $country }}
+spec:
+  rules:
+    - host: {{ $appName}}-{{ $country }}.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $appName }}-svc-{{ $country}}
+                port:
+                  number: 80
+---
+{{- end }}
+{{- end }}

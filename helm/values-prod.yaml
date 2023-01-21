@@ -1,14 +1,29 @@
-# Default values for weroad-chart.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
-
-firsApp:
-  enabled: true
+firstApp:
+  create: true
   appName: app1
   env: staging
   countries:
   - it
   - es
   - uk
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+secondApp:
+  create: true
+  appName: app2
+  env: staging
+  countries:
+  - it
+  - es
+  - uk
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
