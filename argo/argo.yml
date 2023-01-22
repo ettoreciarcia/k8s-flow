@@ -2,21 +2,22 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: we-road
-  namespace: argocd
 spec:
-  project: default
+  destination:
+    name: ''
+    namespace: ''
+    server: 'https://kubernetes.default.svc'
   source:
-    path: helm/
+    path: helm
+    repoURL: 'https://github.com/ettoreciarcia/k8s-flow'
+    targetRevision: HEAD
     helm:
       valueFiles:
         - values-prod.yaml
-    repoURL: https://github.com/ettoreciarcia/k8s-flow
-    targetRevision: HEAD
-    directory:
-      recurse: true
-  destination:
-    namespace: '*'
-    server: https://kubernetes.default.svc
+  project: default
   syncPolicy:
     automated:
       prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

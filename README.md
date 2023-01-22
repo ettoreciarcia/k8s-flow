@@ -32,14 +32,14 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [ ] Write a golang application to export nginx logs at path /logs :star:
 
 ### 5. **Logging & Monitoring**
-- [ ] Prometheus/Grafana/ELK? TBD :boom:
+- [x] Prometheus/Grafana/ELK? TBD :boom:
 
 ### 6. **Load test & Autoscaling Considerations**
 - [ ] Load test with Locust to show autoscaling of pods :boom:
 
 ### 7. **External Access**
 - [x] Grant external access to private subnet with VPN
-- [ ] Create a read only user for Kubernetes
+
 ___
 
 ## 1. Premise
@@ -151,7 +151,7 @@ For each push that modifies the files in samples/app1 or samples/app2 we will cr
 I won't go into the details of how I connected the GitHub Actions to my Docker Hub account, for more info you can read my [article](https://ettoreciarcia.com/posts/01-iac-and-pipeline-my-personal-website/#32-authenticate-github-actions-against-aws). Did I mention I wrote an article? :)
 
 
-In this case I'm treating the project as a monorepo, so I don't want all the pipelines to start with every push on the main branch.
+**In this case I'm treating the project as a monorepo**, so I don't want all the pipelines to start with every push on the main branch.
 We discriminate pipeline launch only to changes in the folders involved in the container build
 We can do it in the following way:
 
@@ -235,7 +235,7 @@ Everything is ready, we can finally enjoy Kubernetes
 ___
 ### 3. **Deploy**
 
-### 3.1 Write Kubernetes manifest ()
+### 3.1 Write Kubernetes manifest
 
 **These manifests are only intended to port the application to kubernetes and have a skeleton to build the helm from**
 In a first step we distribute the images by hand to make sure everything is ok and that the right environment variables are passed, in a second step we proceed with elmizing the solution.
@@ -460,8 +460,34 @@ secondApp:
   - it
   - is
 ```
+___
+
+## 5. Logging & Monitoring
+
+### 5.1 Prometheus and Grafana
 
 
+To monitor the cluster I chose Prometheus and Grafana with a simple configuration (I don't scrape custom metrics).
+
+
+The only change I made was to change the Promethes and Grafana services from ClusterIP to NodePort so they were directly accessible on my Raspberry Pi's IP
+
+```kubectl -n monitoring port-forward svc/grafana 3000```
+
+Here some intersting dashboard
+
+![dashaboard1](img/dashboard1.png)
+
+![dashaboard2](img/dashboard2.png)
+
+![dashboard3](img/dashboard3.png)
+
+Yeah, my RaspberryPi is about to explode!
+
+
+
+
+___
 ## 6. GitOps Flow using ArgoCD
 
 Once you have installed the necessary manifests to dpeloy the argocd resources we can expose argo-server svc via port-forward
