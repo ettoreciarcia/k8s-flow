@@ -7,7 +7,7 @@ A demo repository to play with Kubernetes and indent some more yaml
 ### 1.  **Premise**
 - [x] Some considerations about Architecture :boom:
 - [X] How i emulated a 3 tier network in my homelab
-- [ ] Architecture overview
+- [x] Architecture overview
 ### 2. **CI/CD**
 - [x] Keep your code base clean :boom:
 - [x] Build and deploy image locally :boom:
@@ -28,7 +28,6 @@ A demo repository to play with Kubernetes and indent some more yaml
 
 ### 4.**Scripting**
 - [x] Create deploy-script :star:
-- [ ] Add test suite  to script :boom:
 - [ ] Write a golang application to export nginx logs at path /logs :star:
 
 ### 5. **Logging & Monitoring**
