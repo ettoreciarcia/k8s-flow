@@ -2,11 +2,12 @@
 
 A demo repository to play with Kubernetes and indent some more yaml
 
-## Goal
+## Index
 
 ### 1.  **Premise**
 - [x] Some considerations about Architecture :boom:
-
+- [X] How i emulated a 3 tier network in my homelab
+- [ ] Architecture overview
 ### 2. **CI/CD**
 - [x] Keep your code base clean :boom:
 - [x] Build and deploy image locally :boom:
@@ -22,13 +23,12 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Expose RaspberryPi in DMZ :boom:
 - [ ] Add HPA :boom:
 - [x] Replace our manifest with Helm chart :star:
-- [ ] Add TLS/SSL Certificate to our application :boom:
+- [ ] Add TLS/SSL Certificate to our application :boom:
 - [x] GitOps flow using ArgoCD :boom:
 
 ### 4.**Scripting**
 - [x] Create deploy-script :star:
 - [ ] Add test suite  to script :boom:
-- [ ] GitHub Action to build and test go application :boom:
 - [ ] Write a golang application to export nginx logs at path /logs :star:
 
 ### 5. **Logging & Monitoring**
@@ -43,6 +43,8 @@ A demo repository to play with Kubernetes and indent some more yaml
 ___
 
 ## 1. Premise
+
+### 1.1 **Some considerations about Architecture**
 
 
 In a real scenario I would have created an architecture in the following way:
@@ -62,6 +64,29 @@ I would have used Terraform as an infrastructure as code tool and would have dep
 
 Here you can see an example of how I manage terraform repositories -> [Pesonal Website Iac ](https://github.com/ettoreciarcia/personal-website-iac)
 And here -> [an article](https://ettoreciarcia.com/posts/01-iac-and-pipeline-my-personal-website/) on how I manage pipelines for IaC and an example of how I manage Terraform state
+
+### 1.2 **How i emulated a 3 minus 1 tier network in my homelab**
+
+In my homelab I tend to apply the same best practices as when I work in the Cloud.
+But how can I achieve certain goals with such limited hardware as that of my homelab?
+
+- **Public subnet** : The public subnet is the one that can be reached from outside in the cloud. Inside it contains any load balancers, NAT Gateway/Instance, VPN servers and everything that typically needs to be publicly accessible.
+How can I make a device in my home subnet directly accessible to the internet? I put that device (present in my private subnet) in *Demilitarized Zone (DMZ)*.
+This approach has limitations, the most disabling is that I can only DMZ one device. This device will be a *Single Point of Failure (SPOF)* for our inbound traffic and external access.
+
+- **Private Subnet**: that is used to place resources that should not be directly accessible from the Internet. This can include resources such as databases, application servers, and other internal systems. Using a private subnet can improve security by limiting access to these resources and reducing the attack surface of the network. Additionally, it can also help with compliance requirements, such as HIPAA, that mandate certain resources be kept on a private network.ll use my home subnet, which is also where the device placed in the DMZ resides.
+In our case we will use our home subnet as a private subnet, which is not directly accessible from the Internet. We are actually lying, this subnet goes straight out to the internet exactly like the only device on our public subnet and it shouldn't be like that, the private subnet should go utt to the internet just like the only device on our public subnet and it shouldn't be like that, the private subnet should go out through a NAT that is present in the public subnet. But hey, anything in computing is a trade off
+
+- **DB Subnet**: At the moment I don't have a dedicated db subnet, but I'm planning to buy a small switch that supports VLANs for an upgrade of my lab
+
+
+Another problem with this setup is that the IP address this setup can be accessed with is one and it changes as I don't have a commercial contract.
+I solved this problem using a **Dynamic DNS**
+
+### 1.3 **Architecture Overview**
+In the end we will get this architecture
+
+![Architecture.png](img/Architecture.png)
 
 ___
 ## 2. CI/CD
@@ -210,8 +235,9 @@ Everything is ready, we can finally enjoy Kubernetes
 ___
 ### 3. **Deploy**
 
-### 3.1 Write Kubernetes manifest to deploy Deployment
+### 3.1 Write Kubernetes manifest ()
 
+**These manifests are only intended to port the application to kubernetes and have a skeleton to build the helm from**
 In a first step we distribute the images by hand to make sure everything is ok and that the right environment variables are passed, in a second step we proceed with elmizing the solution.
 
 For the deployment on Kubernetes let's generate the manifest of the 2 deployments:
@@ -317,6 +343,7 @@ we  can make a call to the host
 
 ### 3.4 Expose RaspberryPi in DMZ
 
+Following the philosophy of "Make it work, then make it beautiful" I first exposed the Raspberry Pi in the DMZ to test a functional first round
 If you want to make calls to the services just exposed on the raspberry but from the public network you can search for the IP address of ```hecha.homepc.it``` (My DDNS)  and save it in your ```/etc/hosts``` file as we did in the previous step.
 
 So, to retrieve my public you can run:
@@ -326,7 +353,116 @@ And then copy this value in your ```/etc/hosts``` file
 
 ```[MY_PUBLIC_IP] app1-it.info```
 
-## GitOps Flow using ArgoCD
+### 3.5 Replace our manifest with Helm chart
+
+Created the skeleton of the manifests, I parameterized some values ​​by setting up a hellm chart, here is an extract that creates the depoyments
+
+- Example of ```values.yaml```
+
+```yaml
+firstApp:
+  create: true
+  appName: app1
+  env: staging
+  countries:
+  - it
+  - es
+  - uk
+```
+
+- Example of Deployment
+```yaml
+{{- if .Values.firstApp.create }}
+{{ $appName := .Values.firstApp.appName }}
+{{ $environment := .Values.firstApp.env }}
+{{- range $country := .Values.firstApp.countries }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: we-road-{{ $country}}
+  labels:
+    app: {{ $appName }}-{{ $country}}
+  name: {{ $appName }}-{{ $country}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $appName }}-{{ $country}}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ $appName }}-{{ $country}}
+    spec:
+      containers:
+      - image: hecha00/{{ $appName }}:1.0
+        name: {{ $appName }}-{{ $country}}
+        env:
+        - name: APP_NAME
+          value: {{ $appName }}-{{ $environment }}
+        - name: COUNTRY
+          value: {{ $country }}
+        resources: {}
+status: {}
+---
+{{- end }}
+{{- end }}
+```
+
+The complete helm chart can be found [HERE](helm)
+
+**Install:**
+
+```helm install release helm -f helm/values-prod.yaml```
+
+**Upgrade:**
+
+```helm upgrade release helm -f helm/values-prod.yaml```
+
+**Uninstall:**
+
+```helm uninstall release```
+
+___
+
+## 4. Scripting
+
+### 4.1 **Create deploy-script**
+
+For the script I chose to use the Cobra library.
+
+The purpose of this application is to generate a file to feed to helm for the creation of our resources
+
+
+This script imposes the following constraints on the inserted data
+
+- Countries cannot be longer than two letters
+- The project name cannot be different from app1 or app2
+- The environment cannot be different from production or staging
+
+You can see a demo here:
+
+![script](img/script1.png)
+
+
+We can then run the command
+
+```./helm-value-generator -c it,is -p app2 -e staging```
+
+And a file will be created which contains the values ​​we specified
+
+```yaml
+secondApp:
+  create: true
+  appName: app2
+  env: staging
+  countries:
+  - it
+  - is
+```
+
+
+## 6. GitOps Flow using ArgoCD
 
 Once you have installed the necessary manifests to dpeloy the argocd resources we can expose argo-server svc via port-forward
 
@@ -364,3 +500,9 @@ spec:
 ```
 
 ![argo-synch](img/argosynch.png)
+
+## 7. External Access
+
+### 7.1 **Grant external access to private subnet with VPN**
+
+I made it possible to reach my VPN server by creating an .ovpn file for each user who needed it

@@ -1,0 +1,7 @@
+secondApp:
+  create: true
+  appName: app2
+  env: staging
+  countries:
+  - it
+  - is
