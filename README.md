@@ -459,6 +459,42 @@ secondApp:
   - it
   - is
 ```
+
+### 4.2 Write a golang application to export nginx logs at path /logs
+
+With the current configuration nginx writes the logs only to stdout, to close this point I should change the nginx configuration so that the logs are saved to file
+
+```shell
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  combined_realip  '$http_x_forwarded_for - $remote_user [$time_local] "$request" '
+                                 '$status $body_bytes_sent "$http_referer" '
+                                '"$http_user_agent" "$http_x_forwarded_for"';
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+And I would have added the directive
+
+```access_log /var/log/nginx/access.log main;```
+
+ in the server block.
+
+Then I would read that file with a go or python program and make the logs available via http on a port
+
+I see two problems in my approach:
+- Port 80 would already be busy
+- The file would keep changing and I don't think the nginx /logs page would update as the file changed without a nginx reload
 ___
 
 ## 5. Logging & Monitoring
