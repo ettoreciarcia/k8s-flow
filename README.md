@@ -630,6 +630,8 @@ class QuickstartUser(HttpUser):
 ```
 
 And now we see the magic
+
+![load-test](img/load-test..gif)
 ___
 
 ## 7. External Access

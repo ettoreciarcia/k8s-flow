@@ -20,8 +20,8 @@ spec:
       - image: hecha00/app1:1.0
         resources:
           limits:
-            memory: "40Mi"
-            cpu: "40m"
+            memory: "128Mi"
+            cpu: "128m"
           requests:
             memory: "20Mi"
             cpu: "20m"
