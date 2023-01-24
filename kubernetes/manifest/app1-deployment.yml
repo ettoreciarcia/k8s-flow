@@ -18,11 +18,17 @@ spec:
     spec:
       containers:
       - image: hecha00/app1:1.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "128m"
+          requests:
+            memory: "20Mi"
+            cpu: "20m"
         name: app1
         env:
         - name: APP_NAME
           value: app1-production
         - name: COUNTRY
           value: us
-        resources: {}
 status: {}
