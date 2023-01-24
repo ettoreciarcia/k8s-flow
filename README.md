@@ -21,7 +21,7 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Add networking layer to our manifest :star:
 - [x] Expose applications using Nginx Ingress Controller :star:
 - [x] Expose RaspberryPi in DMZ :boom:
-- [ ] Add HPA :boom:
+- [x] Add HPA :boom:
 - [x] Replace our manifest with Helm chart :star:
 - [ ] Add TLS/SSL Certificate to our application :boom:
 - [x] GitOps flow using ArgoCD :boom:
@@ -34,7 +34,7 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Prometheus/Grafana/ELK? TBD :boom:
 
 ### 6. **Load test & Autoscaling Considerations**
-- [ ] Load test with Locust to show autoscaling of pods :boom:
+- [x] Load test with Locust to show autoscaling of pods :boom:
 
 ### 7. **External Access**
 - [x] Grant external access to private subnet with VPN
@@ -352,6 +352,50 @@ And then copy this value in your ```/etc/hosts``` file
 
 ```[MY_PUBLIC_IP] app1-it.info```
 
+### 3.4 Add HPA
+
+
+We're on Kubernetes so we like it barefoot, right? Let's add limits and resource requests to our pod. 
+We know that a resting nginx pod consumes about 5Mi of RAM and 3M of CPU.
+
+```yaml
+containers:
+      - image: hecha00/app1:1.0
+        resources:
+          limits:
+            memory: "40Mi"
+            cpu: "40m"
+          requests:
+            memory: "20Mi"
+            cpu: "20m"
+```
+
+and let's create an HPA
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-deployment-hpa
+  namespace: we-road
+spec:
+  maxReplicas: 10
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app1
+```
+
+What we are telling our cluster with these definitions is that it should scale the pods in this deployment up to a maximum of 10 and should add a pod every time the cpu values ​​get close to 80% of the limit defined here
+
 ### 3.5 Replace our manifest with Helm chart
 
 Created the skeleton of the manifests, I parameterized some values ​​by setting up a hellm chart, here is an extract that creates the depoyments
@@ -421,6 +465,51 @@ The complete helm chart can be found [HERE](helm)
 **Uninstall:**
 
 ```helm uninstall release```
+
+### 3.6 **GitOps Flow using ArgoCD**
+
+Once you have installed the necessary manifests to dpeloy the argocd resources we can expose argo-server svc via port-forward
+
+```k port-forward svc/argocd-server 8080:443 -n argocd```
+
+Now we can access ArgoCD Web UI from localhost
+
+![argoCD](img/argo.png)
+
+To retrieve ArgoCD's first password:
+
+```kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo```
+
+After a bit, we create our application in argo and we linked it to our GitHub Repo!
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: we-road
+spec:
+  destination:
+    name: ''
+    namespace: ''
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: helm
+    repoURL: 'https://github.com/ettoreciarcia/k8s-flow'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values-prod.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+```
+
+![argo-synch](img/argosynch.png)
 
 ___
 
@@ -518,55 +607,30 @@ Here some intersting dashboard
 ![dashboard3](img/dashboard3.png)
 
 Yeah, my RaspberryPi is about to explode!
-
-
-
-
 ___
-## 6. GitOps Flow using ArgoCD
 
-Once you have installed the necessary manifests to dpeloy the argocd resources we can expose argo-server svc via port-forward
+## 6. Load test & Autoscaling Considerations
 
-```k port-forward svc/argocd-server 8080:443 -n argocd```
+In the previous step we set limits on the resources that the application pods can consume. It's time to put some stress on the application with a load test.
 
-Now we can access ArgoCD Web UI from localhost
 
-![argoCD](img/argo.png)
+For this goal we will use [locust](https://locust.io/), a modern load testing framework.
 
-To retrieve ArgoCD's first password:
+We will define a locustfile structured like this
 
-```kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo```
+```python
+from locust import HttpUser, task, between
 
-After a bit, we create our application in argo and we linked it to our GitHub Repo!
+class QuickstartUser(HttpUser):
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: we-road
-spec:
-  destination:
-    name: ''
-    namespace: ''
-    server: 'https://kubernetes.default.svc'
-  source:
-    path: helm
-    repoURL: 'https://github.com/ettoreciarcia/k8s-flow'
-    targetRevision: HEAD
-    helm:
-      valueFiles:
-        - values-prod.yaml
-  project: default
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-
+    @task
+    def sample_call(self):
+        self.client.get("/")
+        self.client.get("/ping")
 ```
 
-![argo-synch](img/argosynch.png)
+And now we see the magic
+___
 
 ## 7. External Access
 
