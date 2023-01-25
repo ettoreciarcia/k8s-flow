@@ -17,7 +17,7 @@ spec:
         app: app1
     spec:
       containers:
-      - image: hecha00/app1:1.0
+      - image: hecha00/app1:latest
         resources:
           limits:
             memory: "128Mi"
