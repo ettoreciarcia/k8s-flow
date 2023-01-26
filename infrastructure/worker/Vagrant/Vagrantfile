@@ -1,0 +1,21 @@
+number_of_vms = _CHANGE_ME_
+token = _CHANGE_ME_
+control_plane_ip = _CHANGE_ME_
+
+Vagrant.configure("2") do |config|
+  (1..number_of_vms).each do |i|
+    config.vm.define "k3s-worker-#{i}" do |worker|
+      worker.vm.hostname = "k3s-worker-#{i}"
+      worker.vm.box = "ubuntu/focal64"
+      worker.vm.network "public_network", bridge: "wlp3s0f0", ip: "192.168.0.#{30+i}"
+      worker.vm.provider "virtualbox" do |vb|
+        vb.memory = 1024
+      end
+      worker.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y curl
+        curl -sfL https://get.k3s.io | K3S_URL=https://#{control_plane_ip}:6443 K3S_TOKEN=#{token} sh -
+      SHELL
+    end
+  end
+end

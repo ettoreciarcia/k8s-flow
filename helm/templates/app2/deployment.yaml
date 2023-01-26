@@ -21,7 +21,7 @@ spec:
         app: {{ $appName }}-{{ $country}}
     spec:
       containers:
-      - image: hecha00/{{ $appName }}:1.0
+      - image: hecha00/{{ $appName }}:latest
         name: {{ $appName }}-{{ $country}}
         env:
         - name: APP_NAME

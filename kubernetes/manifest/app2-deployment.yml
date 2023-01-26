@@ -17,7 +17,7 @@ spec:
         app: app2
     spec:
       containers:
-      - image: hecha00/app2:1.0
+      - image: hecha00/app2:latest
         name: app2
         env:
         - name: APP_NAME
