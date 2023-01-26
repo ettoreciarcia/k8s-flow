@@ -305,7 +305,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: we-road
+  namespace: gitops-flow
 spec:
   rules:
     - host: app1-it.info
@@ -377,7 +377,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: my-deployment-hpa
-  namespace: we-road
+  namespace: gitops-flow
 spec:
   maxReplicas: 10
   metrics:
@@ -422,7 +422,7 @@ firstApp:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: we-road-{{ $country}}
+  namespace: gitops-flow-{{ $country}}
   labels:
     app: {{ $appName }}-{{ $country}}
   name: {{ $appName }}-{{ $country}}
@@ -486,7 +486,7 @@ After a bit, we create our application in argo and we linked it to our GitHub Re
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: we-road
+  name: gitops-flow
 spec:
   destination:
     name: ''

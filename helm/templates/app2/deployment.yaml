@@ -5,7 +5,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: we-road-{{ $country}}
+  namespace: gitops-flow-{{ $country}}
   labels:
     app: {{ $appName }}-{{ $country}}
   name: {{ $appName }}-{{ $country}}
