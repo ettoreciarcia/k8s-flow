@@ -15,8 +15,9 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Add security scan to image in pipeline :boom:
 - [x] Optimize image size and security :boom:
 - [x] Push image on a container registry :boom:
+- [ ] Consideration about tagging strategy
 
-### 3. **Deploy**
+### 3. **Deploy** 
 - [x] Write Kubernetes manifest to deploy Deployment :star:
 - [x] Add networking layer to our manifest :star:
 - [x] Expose applications using Nginx Ingress Controller :star:
@@ -24,11 +25,14 @@ A demo repository to play with Kubernetes and indent some more yaml
 - [x] Add HPA :boom:
 - [x] Replace our manifest with Helm chart :star:
 - [ ] Add TLS/SSL Certificate to our application :boom:
+- [ ] Add Network policies
+- [ ] Add a complete FE-BE application
+- [ ] Add an app to play with storage
+- [ ] Consideration about storage back up
 - [x] GitOps flow using ArgoCD :boom:
 
 ### 4.**Scripting**
 - [x] Create deploy-script :star:
-- [ ] Write a golang application to export nginx logs at path /logs :star:
 
 ### 5. **Logging & Monitoring**
 - [x] Prometheus/Grafana/ELK? TBD :boom:
