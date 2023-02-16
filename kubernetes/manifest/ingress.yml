@@ -2,13 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: we-road
+  namespace: gitops-flow
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   rules:
-    - host: app1-it.info
+    - host: dev.ettoreciarcia.com
       http:
         paths:
           - path: /
@@ -18,13 +18,17 @@ spec:
                 name: app1-svc
                 port:
                   number: 80
-    - host: app2-it.info
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: app2-svc
-                port:
-                  number: 80
+  tls:
+    - hosts:
+      - dev.ettoreciarcia.com
+
+    # - host: app2-it.info
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: app2-svc
+    #             port:
+    #               number: 80

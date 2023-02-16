@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: we-road
+  name: gitops-flow
 spec:
   destination:
     name: ''

@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: my-deployment-hpa
-  namespace: we-road
+  namespace: gitops-flow
 spec:
   maxReplicas: 10
   metrics:
